@@ -10,6 +10,22 @@ const client = new Client({
     }
 });
 
+function formatPokemonData(hits) {
+    return hits.hits.map(hit => ({
+        "#": hit._source['#'],
+        "Name": hit._source['Name'],
+        "Type1": hit._source['Type1'],
+        "Type2": hit._source['Type2'],
+        "HP": hit._source['HP'],
+        "Attack": hit._source['Attack'],
+        "Sp_Atk": hit._source['Sp_Atk'],
+        "Defense": hit._source['Defense'],
+        "Sp_Def": hit._source['Sp_Def'],
+        "Speed": hit._source['Speed'],
+        "Variation": hit._source['Variation']
+    }));
+}
+
 async function searchPokemonByName(pokemonName) {
     const { hits } = await client.search({
         index: 'pokemon',
@@ -19,17 +35,10 @@ async function searchPokemonByName(pokemonName) {
                     "Name": pokemonName
                 }
             },
-            _source: ["#", "Name", "Type1", "Type2", "Variation"]
+            _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_Atk", "Defense", "Sp_Def", "Speed", "Variation"]
         }
     });
-    const res = hits.hits.map(hit => ({
-        "#": hit._source['#'],
-        "Name": hit._source['Name'],
-        "Type1": hit._source['Type1'],
-        "Type2": hit._source['Type2']
-    }));
-
-    return res;
+    return formatPokemonData(hits);
 }
 
 async function getAllPokemon() {
@@ -40,22 +49,29 @@ async function getAllPokemon() {
                 query: {
                     match_all: {}
                 },
-                _source: ["#", "Name", "Type1", "Type2", "Variation"]
+                _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_Atk", "Defense", "Sp_Def", "Speed", "Variation"]
             }
         });
-        hits.hits.map(poke => console.log(poke))
-        const res = hits.hits.map(hit => ({
-            "#": hit._source['#'],
-            "Name": hit._source['Name'],
-            "Type1": hit._source['Type1'],
-            "Type2": hit._source['Type2']
-        }));
-
-        return res;
+        return formatPokemonData(hits);
     } catch (error) {
         console.error(error);
     }
 
+}
+
+async function searchedPokemon(pokemonName) {
+    const { hits } = await client.search({
+        index: 'pokemon',
+        body: {
+            query: {
+                wildcard: {
+                    "Name": `*${pokemonName}*`
+                }
+            },
+            _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_Atk", "Defense", "Sp_Def", "Speed", "Variation"]
+        }
+    });
+    return formatPokemonData(hits);
 }
 
 router.get('/pokemons', async (req, res) => {
@@ -74,6 +90,17 @@ router.get('/pokemon/:name', async (req, res) => {
     const pokemonName = req.params.name;
     try {
         const results = await searchPokemonByName(pokemonName);
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/pokemonSelected/:input', async (req, res) => {
+    console.log("test")
+    const pokemonName = req.params.name;
+    try {
+        const results = await searchedPokemon(pokemonName);
         res.json(results);
     } catch (error) {
         res.status(500).json({ error: error.message });

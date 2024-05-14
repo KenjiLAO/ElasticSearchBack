@@ -10,7 +10,6 @@ const pokemonRoute = require('./routes/pokemon');
 
 app.get('/pokemon/:name', pokemonRoute);
 app.get('/pokemons', pokemonRoute);
+app.get('/pokemonSelected/:input', pokemonRoute);
 
-app.get('/hello', (req, res) => {
-    res.send('Hello, World!');
-});
+
