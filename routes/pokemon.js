@@ -75,7 +75,6 @@ async function searchedPokemon(pokemonName) {
 }
 
 router.get('/pokemons', async (req, res) => {
-    console.log("test")
     const pokemonName = req.params.name;
     try {
         const results = await getAllPokemon();
@@ -86,7 +85,6 @@ router.get('/pokemons', async (req, res) => {
 });
 
 router.get('/pokemon/:name', async (req, res) => {
-    console.log("test")
     const pokemonName = req.params.name;
     try {
         const results = await searchPokemonByName(pokemonName);
@@ -96,8 +94,7 @@ router.get('/pokemon/:name', async (req, res) => {
     }
 });
 
-router.get('/pokemonSelected/:input', async (req, res) => {
-    console.log("test")
+router.put('/pokemonSelected/:input', async (req, res) => {
     const pokemonName = req.params.name;
     try {
         const results = await searchedPokemon(pokemonName);
