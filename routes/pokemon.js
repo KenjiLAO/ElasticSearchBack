@@ -55,21 +55,46 @@ async function getAllPokemon() {
         const { hits } = await client.search({
             index: 'pokemon',
             body: {
-                "from": fromIndex,
-                "size": 20,
+                "size": 1200,
                 query: {
                     match_all: {}
                 },
                 _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_Atk", "Defense", "Sp_Def", "Speed", "Variation"]
             }
         });
-        fromIndex += 20;
 
         return formatPokemonData(hits);
     } catch (error) {
         console.error(error);
     }
 }
+async function fetchPokemons(page) {
+    try {
+        const { hits } = await client.search({
+            index: 'pokemon',
+            body: {
+                from: (page - 1) * pageSize,
+                size: pageSize,
+                query: {
+                    match_all: {}
+                }
+            }
+        });
+        return hits.hits.map(hit => hit._source);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
+
+async function getFirstTwentyPokemons() {
+    return await fetchPokemons(1);
+}
+
+async function getNextTwentyPokemons() {
+    return await fetchPokemons(2);
+}
+
 
 async function searchedPokemon(pokemonName) {
     const { hits } = await client.search({
@@ -156,6 +181,16 @@ router.get('/pokemons', async (req, res) => {
     const pokemonName = req.params.name;
     try {
         const results = await getAllPokemon();
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/pokemons', async (req, res) => {
+    const pokemonName = req.params.name;
+    try {
+        const results = await getAllPokemonPaginated();
         res.json(results);
     } catch (error) {
         res.status(500).json({ error: error.message });
