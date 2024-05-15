@@ -43,24 +43,3 @@ async function testConnection() {
         console.error("Erreur lors de la connexion à Elasticsearch :", error);
     }
 }
-
-async function searchPokemonByName(pokemonName) {
-    try {
-        const { test } = await client.search({
-            index: 'pokemon',
-            body: {
-                query: {
-                    match: {
-                        "Name": pokemonName
-                    }
-                }
-            }
-        });
-
-        return test;
-    } catch (error) {
-        throw new Error(`Une erreur s'est produite lors de la recherche du Pokémon "${pokemonName}": ${error}`);
-    }
-}
-
-testConnection()

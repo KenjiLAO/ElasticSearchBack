@@ -26,6 +26,13 @@ function formatPokemonData(hits) {
     }));
 }
 
+function aggregateData(aggregations) {
+    return aggregations.most_searched.buckets.map(hit => ({
+        "PokemonName": hit._source['key'],
+        "Date": hit._source['doc-count']
+    }));
+}
+
 async function searchPokemonByName(pokemonName) {
     const { hits } = await client.search({
         index: 'pokemon',
@@ -41,24 +48,27 @@ async function searchPokemonByName(pokemonName) {
     return formatPokemonData(hits);
 }
 
+let fromIndex = 0;
+
 async function getAllPokemon() {
     try {
         const { hits } = await client.search({
             index: 'pokemon',
             body: {
-                "from": 0,
-                "size": 1200,
+                "from": fromIndex,
+                "size": 20,
                 query: {
                     match_all: {}
                 },
                 _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_Atk", "Defense", "Sp_Def", "Speed", "Variation"]
             }
         });
+        fromIndex += 20;
+
         return formatPokemonData(hits);
     } catch (error) {
         console.error(error);
     }
-
 }
 
 async function searchedPokemon(pokemonName) {
@@ -68,7 +78,8 @@ async function searchedPokemon(pokemonName) {
             query: {
                 fuzzy: {
                     Name: {
-                        value: pokemonName                    }
+                        value: pokemonName
+                    }
                 }
             }
         }
@@ -96,9 +107,9 @@ async function getRandomPokemon() {
     return formatPokemonData(hits);
 }
 
-async function createSearchLogsIndex() {
+async function createSearchedPokemonIndex() {
     await client.indices.create({
-        index: 'search_logs',
+        index: 'searched_pokemon',
         body: {
             mappings: {
                 properties: {
@@ -110,16 +121,9 @@ async function createSearchLogsIndex() {
     });
 }
 
-async function ensureSearchLogsIndex() {
-    const indexExists = await client.indices.exists({ index: 'search_logs' });
-    if (!indexExists.body) {
-        await createSearchLogsIndex();
-    }
-}
-
 async function logSearch(pokemonName) {
     await client.index({
-        index: 'search_logs',
+        index: 'searched_pokemon',
         body: {
             Name: pokemonName,
             timestamp: new Date()
@@ -128,23 +132,24 @@ async function logSearch(pokemonName) {
 }
 
 async function getMostSearchedPokemon() {
-    const { body } = await client.search({
-        index: 'search_logs',
+    const { aggregations } = await client.search({
+        index: 'searched_pokemon',
         body: {
             size: 0,
             aggs: {
                 most_searched: {
                     terms: {
-                        field: 'Name.keyword',
-                        size: 1,
-                        order: { _count: 'desc' }
+                        field: 'Name',
+                        size: 20,
+                        order: {
+                            _count: 'desc'
+                        }
                     }
                 }
             }
         }
     });
-
-    return body.aggregations.most_searched.buckets[0];
+    return aggregations.most_searched.buckets;
 }
 
 router.get('/pokemons', async (req, res) => {
@@ -159,6 +164,7 @@ router.get('/pokemons', async (req, res) => {
 
 router.get('/pokemon/:name', async (req, res) => {
     const pokemonName = req.params.name;
+    await logSearch(pokemonName);
     try {
         const results = await searchPokemonByName(pokemonName);
         res.json(results);
@@ -186,10 +192,10 @@ router.get('/randomPokemon', async (req, res) => {
     }
 });
 
-router.get('/pokemon/most-searched', async (req, res) => {
+router.get('/pokemonMostSearched', async (req, res) => {
     try {
-        const results = await getMostSearchedPokemon();
-        res.json(results);
+        const mostSearched = await getMostSearchedPokemon();
+        res.json(mostSearched);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

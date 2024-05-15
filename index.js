@@ -12,7 +12,7 @@ app.get('/pokemon/:name', pokemonRoute);
 app.get('/pokemons', pokemonRoute);
 app.get('/pokemonSelected/:name', pokemonRoute);
 app.get('/randomPokemon', pokemonRoute);
-app.get('/pokemon/most-searched', pokemonRoute);
+app.get('/pokemonMostSearched', pokemonRoute);
 
 
 
