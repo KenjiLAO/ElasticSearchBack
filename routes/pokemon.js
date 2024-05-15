@@ -26,13 +26,6 @@ function formatPokemonData(hits) {
     }));
 }
 
-function aggregateData(aggregations) {
-    return aggregations.most_searched.buckets.map(hit => ({
-        "PokemonName": hit._source['key'],
-        "Date": hit._source['doc-count']
-    }));
-}
-
 async function searchPokemonByName(pokemonName) {
     const { hits } = await client.search({
         index: 'pokemon',
@@ -155,13 +148,34 @@ async function createSearchedPokemonIndex() {
 }
 
 async function logSearch(pokemonName) {
-    await client.index({
-        index: 'searched_pokemon',
-        body: {
-            Name: pokemonName,
-            timestamp: new Date()
+    try {
+        const { hits } = await client.search({
+            index: 'pokemon',
+            body: {
+                query: {
+                    match: {
+                        Name: pokemonName
+                    }
+                }
+            }
+        });
+
+        if (hits.total.value > 0) {
+            await client.index({
+                index: 'searched_pokemon',
+                body: {
+                    Name: pokemonName,
+                    timestamp: new Date()
+                }
+            });
+            console.log(`Recherche pour "${pokemonName}" enregistrée.`);
+        } else {
+            console.log(`Le Pokémon "${pokemonName}" n'existe pas dans l'index.`);
         }
-    });
+    } catch (error) {
+        console.error('Error logging search:', error);
+        throw error;
+    }
 }
 
 async function getMostSearchedPokemon() {
@@ -189,16 +203,6 @@ router.get('/pokemons', async (req, res) => {
     const pokemonName = req.params.name;
     try {
         const results = await getAllPokemon();
-        res.json(results);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-router.get('/pokemons', async (req, res) => {
-    const pokemonName = req.params.name;
-    try {
-        const results = await getAllPokemonPaginated();
         res.json(results);
     } catch (error) {
         res.status(500).json({ error: error.message });
