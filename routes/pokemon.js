@@ -12,7 +12,7 @@ const client = new Client({
 
 function formatPokemonData(hits) {
     return hits.hits.map(hit => ({
-        "#": hit._source['#'],
+        "Id": hit._source['#'],
         "Name": hit._source['Name'],
         "Type1": hit._source['Type1'],
         "Type2": hit._source['Type2'],
@@ -96,6 +96,57 @@ async function getRandomPokemon() {
     return formatPokemonData(hits);
 }
 
+async function createSearchLogsIndex() {
+    await client.indices.create({
+        index: 'search_logs',
+        body: {
+            mappings: {
+                properties: {
+                    Name: { type: 'keyword' },
+                    timestamp: { type: 'date' }
+                }
+            }
+        }
+    });
+}
+
+async function ensureSearchLogsIndex() {
+    const indexExists = await client.indices.exists({ index: 'search_logs' });
+    if (!indexExists.body) {
+        await createSearchLogsIndex();
+    }
+}
+
+async function logSearch(pokemonName) {
+    await client.index({
+        index: 'search_logs',
+        body: {
+            Name: pokemonName,
+            timestamp: new Date()
+        }
+    });
+}
+
+async function getMostSearchedPokemon() {
+    const { body } = await client.search({
+        index: 'search_logs',
+        body: {
+            size: 0,
+            aggs: {
+                most_searched: {
+                    terms: {
+                        field: 'Name.keyword',
+                        size: 1,
+                        order: { _count: 'desc' }
+                    }
+                }
+            }
+        }
+    });
+
+    return body.aggregations.most_searched.buckets[0];
+}
+
 router.get('/pokemons', async (req, res) => {
     const pokemonName = req.params.name;
     try {
@@ -129,6 +180,15 @@ router.get('/pokemonSelected/:name', async (req, res) => {
 router.get('/randomPokemon', async (req, res) => {
     try {
         const results = await getRandomPokemon();
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/pokemon/most-searched', async (req, res) => {
+    try {
+        const results = await getMostSearchedPokemon();
         res.json(results);
     } catch (error) {
         res.status(500).json({ error: error.message });
