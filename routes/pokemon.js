@@ -68,6 +68,8 @@ async function getAllPokemon() {
         console.error(error);
     }
 }
+
+const pageSize = 20;
 async function fetchPokemons(page) {
     try {
         const { hits } = await client.search({
@@ -80,19 +82,25 @@ async function fetchPokemons(page) {
                 }
             }
         });
-        return hits.hits.map(hit => hit._source);
+        return formatPokemonData(hits);
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
     }
 }
 
-async function getFirstTwentyPokemons() {
-    return await fetchPokemons(1);
-}
+async function fetchAllPokemons() {
+    let allPokemons = {};
+    let page = 1;
+    let fetchedPokemons;
 
-async function getNextTwentyPokemons() {
-    return await fetchPokemons(2);
+    do {
+        fetchedPokemons = await fetchPokemons(page);
+        allPokemons[page.toString()] = fetchedPokemons;
+        page++;
+    } while (fetchedPokemons.length === pageSize);
+
+    return allPokemons;
 }
 
 
@@ -191,6 +199,16 @@ router.get('/pokemons', async (req, res) => {
     const pokemonName = req.params.name;
     try {
         const results = await getAllPokemonPaginated();
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/pokemons/paggination', async (req, res) => {
+    const pokemonName = req.params.name;
+    try {
+        const results = await fetchAllPokemons();
         res.json(results);
     } catch (error) {
         res.status(500).json({ error: error.message });
