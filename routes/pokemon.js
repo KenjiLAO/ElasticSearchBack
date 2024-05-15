@@ -66,13 +66,11 @@ async function searchedPokemon(pokemonName) {
             query: {
                 fuzzy: {
                     Name: {
-                        value: pokemonName
-                    }
+                        value: pokemonName                    }
                 }
             }
         }
     });
-
     return formatPokemonData(hits);
 }
 
@@ -116,7 +114,7 @@ router.get('/pokemon/:name', async (req, res) => {
     }
 });
 
-router.put('/pokemonSelected/:input', async (req, res) => {
+router.get('/pokemonSelected/:name', async (req, res) => {
     const pokemonName = req.params.name;
     try {
         const results = await searchedPokemon(pokemonName);
