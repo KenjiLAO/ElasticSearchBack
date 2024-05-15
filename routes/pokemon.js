@@ -18,9 +18,9 @@ function formatPokemonData(hits) {
         "Type2": hit._source['Type2'],
         "HP": hit._source['HP'],
         "Attack": hit._source['Attack'],
-        "Sp_Atk": hit._source['Sp_Atk'],
+        "Sp_Atk": hit._source['Sp_ Atk'],
         "Defense": hit._source['Defense'],
-        "Sp_Def": hit._source['Sp_Def'],
+        "Sp_Def": hit._source['Sp_ Def'],
         "Speed": hit._source['Speed'],
         "Variation": hit._source['Variation']
     }));
@@ -35,13 +35,11 @@ async function searchPokemonByName(pokemonName) {
                     "Name": pokemonName
                 }
             },
-            _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_Atk", "Defense", "Sp_Def", "Speed", "Variation"]
+            _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_ Atk", "Defense", "Sp_ Def", "Speed", "Variation"]
         }
     });
     return formatPokemonData(hits);
 }
-
-let fromIndex = 0;
 
 async function getAllPokemon() {
     try {
@@ -52,7 +50,7 @@ async function getAllPokemon() {
                 query: {
                     match_all: {}
                 },
-                _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_Atk", "Defense", "Sp_Def", "Speed", "Variation"]
+                _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_ Atk", "Defense", "Sp_ Def", "Speed", "Variation"]
             }
         });
 
