@@ -64,13 +64,35 @@ async function searchedPokemon(pokemonName) {
         index: 'pokemon',
         body: {
             query: {
-                wildcard: {
-                    "Name": `*${pokemonName}*`
+                fuzzy: {
+                    Name: {
+                        value: pokemonName
+                    }
                 }
-            },
-            _source: ["#", "Name", "Type1", "Type2", "HP", "Attack", "Sp_Atk", "Defense", "Sp_Def", "Speed", "Variation"]
+            }
         }
     });
+
+    return formatPokemonData(hits);
+}
+
+async function getRandomPokemon() {
+    const { hits } = await client.search({
+        index: 'pokemon',
+        body: {
+            size: 1,
+            query: {
+                function_score: {
+                    functions: [
+                        {
+                            random_score: {}
+                        }
+                    ]
+                }
+            }
+        }
+    });
+
     return formatPokemonData(hits);
 }
 
@@ -98,6 +120,15 @@ router.put('/pokemonSelected/:input', async (req, res) => {
     const pokemonName = req.params.name;
     try {
         const results = await searchedPokemon(pokemonName);
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/randomPokemon', async (req, res) => {
+    try {
+        const results = await getRandomPokemon();
         res.json(results);
     } catch (error) {
         res.status(500).json({ error: error.message });
