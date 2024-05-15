@@ -46,6 +46,8 @@ async function getAllPokemon() {
         const { hits } = await client.search({
             index: 'pokemon',
             body: {
+                "from": 0,
+                "size": 1200,
                 query: {
                     match_all: {}
                 },
