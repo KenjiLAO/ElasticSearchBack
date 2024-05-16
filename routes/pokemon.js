@@ -197,6 +197,65 @@ async function getMostSearchedPokemon() {
     return aggregations.most_searched.buckets;
 }
 
+/**
+ * @swagger
+ * tags:
+ *   name: Pokemon
+ *   description: Gestion des Pokémon
+ */
+
+/**
+ * @swagger
+ * /pokemons:
+ *   get:
+ *     summary: Récupère la liste de tous les Pokémon
+ *     tags: [Pokemon]
+ *     responses:
+ *       200:
+ *         description: Liste de tous les Pokémon
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     example: Bulbasaur
+ *                   type1:
+ *                     type: string
+ *                     example: Grass
+ *                   type2:
+ *                     type: string
+ *                     example: Poison
+ *                   HP:
+ *                     type: integer
+ *                     example: 45
+ *                   Attack:
+ *                     type: integer
+ *                     example: 49
+ *                   Sp_Atk:
+ *                     type: integer
+ *                     example: 65
+ *                   Defense:
+ *                     type: integer
+ *                     example: 49
+ *                   Sp_Def:
+ *                     type: integer
+ *                     example: 65
+ *                   Speed:
+ *                     type: integer
+ *                     example: 45
+ *                   Variation:
+ *                     type: string
+ *                     example: Normal ou forme spéciale
+ *
+ */
+
 router.get('/pokemons', async (req, res) => {
     const pokemonName = req.params.name;
     try {
@@ -207,6 +266,69 @@ router.get('/pokemons', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /pokemons/pagination:
+ *   get:
+ *     summary: Récupère une liste de Pokémon avec pagination
+ *     tags: [Pokemon]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Numéro de la page
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Nombre de Pokémon par page
+ *     responses:
+ *       200:
+ *         description: Liste paginée des Pokémon
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     example: Bulbasaur
+ *                   type1:
+ *                     type: string
+ *                     example: Grass
+ *                   type2:
+ *                     type: string
+ *                     example: Poison
+ *                   HP:
+ *                     type: integer
+ *                     example: 45
+ *                   Attack:
+ *                     type: integer
+ *                     example: 49
+ *                   Sp_Atk:
+ *                     type: integer
+ *                     example: 65
+ *                   Defense:
+ *                     type: integer
+ *                     example: 49
+ *                   Sp_Def:
+ *                     type: integer
+ *                     example: 65
+ *                   Speed:
+ *                     type: integer
+ *                     example: 45
+ *                   Variation:
+ *                     type: string
+ *                     example: Normal ou forme spéciale
+ */
 router.get('/pokemons/paggination', async (req, res) => {
     const pokemonName = req.params.name;
     try {
@@ -217,6 +339,61 @@ router.get('/pokemons/paggination', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /pokemon/{name}:
+ *   get:
+ *     summary: Récupère les informations d'un Pokémon par son nom
+ *     tags: [Pokemon]
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Nom du Pokémon
+ *     responses:
+ *       200:
+ *         description: Informations du Pokémon
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                     type: integer
+ *                     example: 1
+ *                 name:
+ *                     type: string
+ *                     example: Bulbasaur
+ *                 type1:
+ *                     type: string
+ *                     example: Grass
+ *                 type2:
+ *                     type: string
+ *                     example: Poison
+ *                 HP:
+ *                     type: integer
+ *                     example: 45
+ *                 Attack:
+ *                     type: integer
+ *                     example: 49
+ *                 Sp_Atk:
+ *                     type: integer
+ *                     example: 65
+ *                 Defense:
+ *                     type: integer
+ *                     example: 49
+ *                 Sp_Def:
+ *                     type: integer
+ *                     example: 65
+ *                 Speed:
+ *                     type: integer
+ *                     example: 45
+ *                 Variation:
+ *                     type: string
+ *                     example: Normal ou forme spéciale
+ */
 router.get('/pokemon/:name', async (req, res) => {
     const pokemonName = req.params.name;
     await logSearch(pokemonName);
@@ -228,6 +405,61 @@ router.get('/pokemon/:name', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /pokemonSelected/{name}:
+ *   get:
+ *     summary: Récupère un Pokémon sélectionné par son nom avec une approximation
+ *     tags: [Pokemon]
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Nom du Pokémon
+ *     responses:
+ *       200:
+ *         description: Détails du Pokémon sélectionné
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                     type: integer
+ *                     example: 1
+ *                 name:
+ *                     type: string
+ *                     example: Bulbasaur
+ *                 type1:
+ *                     type: string
+ *                     example: Grass
+ *                 type2:
+ *                     type: string
+ *                     example: Poison
+ *                 HP:
+ *                     type: integer
+ *                     example: 45
+ *                 Attack:
+ *                     type: integer
+ *                     example: 49
+ *                 Sp_Atk:
+ *                     type: integer
+ *                     example: 65
+ *                 Defense:
+ *                     type: integer
+ *                     example: 49
+ *                 Sp_Def:
+ *                     type: integer
+ *                     example: 65
+ *                 Speed:
+ *                     type: integer
+ *                     example: 45
+ *                 Variation:
+ *                     type: string
+ *                     example: Normal ou forme spéciale
+ */
 router.get('/pokemonSelected/:name', async (req, res) => {
     const pokemonName = req.params.name;
     try {
@@ -238,6 +470,54 @@ router.get('/pokemonSelected/:name', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /randomPokemon:
+ *   get:
+ *     summary: Récupère un Pokémon aléatoire
+ *     tags: [Pokemon]
+ *     responses:
+ *       200:
+ *         description: Un Pokémon aléatoire
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                     type: integer
+ *                     example: 1
+ *                 name:
+ *                     type: string
+ *                     example: Bulbasaur
+ *                 type1:
+ *                     type: string
+ *                     example: Grass
+ *                 type2:
+ *                     type: string
+ *                     example: Poison
+ *                 HP:
+ *                     type: integer
+ *                     example: 45
+ *                 Attack:
+ *                     type: integer
+ *                     example: 49
+ *                 Sp_Atk:
+ *                     type: integer
+ *                     example: 65
+ *                 Defense:
+ *                     type: integer
+ *                     example: 49
+ *                 Sp_Def:
+ *                     type: integer
+ *                     example: 65
+ *                 Speed:
+ *                     type: integer
+ *                     example: 45
+ *                 Variation:
+ *                     type: string
+ *                     example: Normal ou forme spéciale
+ */
 router.get('/randomPokemon', async (req, res) => {
     try {
         const results = await getRandomPokemon();
@@ -247,6 +527,29 @@ router.get('/randomPokemon', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /pokemonMostSearched:
+ *   get:
+ *     summary: Récupère la liste des Pokémon les plus recherchés
+ *     tags: [Pokemon]
+ *     responses:
+ *       200:
+ *         description: Liste des Pokémon les plus recherchés
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   key:
+ *                     type: string
+ *                     example: Squirtle
+ *                   Nombre de recheches:
+ *                     type: integer
+ *                     example: 12
+ */
 router.get('/pokemonMostSearched', async (req, res) => {
     try {
         const mostSearched = await getMostSearchedPokemon();
