@@ -60,14 +60,14 @@ async function getAllPokemon() {
     }
 }
 
-const pageSize = 20;
-async function fetchPokemons(page) {
+async function fetchPokemons(page,size) {
+    const from = (page - 1) * size;
     try {
         const { hits } = await client.search({
             index: 'pokemon',
+            from: from,
+            size: size,
             body: {
-                from: (page - 1) * pageSize,
-                size: pageSize,
                 query: {
                     match_all: {}
                 }
@@ -78,20 +78,6 @@ async function fetchPokemons(page) {
         console.error('Error fetching data:', error);
         throw error;
     }
-}
-
-async function fetchAllPokemons() {
-    let allPokemons = {};
-    let page = 1;
-    let fetchedPokemons;
-
-    do {
-        fetchedPokemons = await fetchPokemons(page);
-        allPokemons[page.toString()] = fetchedPokemons;
-        page++;
-    } while (fetchedPokemons.length === pageSize);
-
-    return allPokemons;
 }
 
 
@@ -112,7 +98,7 @@ async function searchedPokemon(pokemonName) {
 }
 
 async function getRandomPokemon() {
-    const { hits } = await client.search({
+    const {hits} = await client.search({
         index: 'pokemon',
         body: {
             size: 1,
@@ -129,20 +115,6 @@ async function getRandomPokemon() {
     });
 
     return formatPokemonData(hits);
-}
-
-async function createSearchedPokemonIndex() {
-    await client.indices.create({
-        index: 'searched_pokemon',
-        body: {
-            mappings: {
-                properties: {
-                    Name: { type: 'keyword' },
-                    timestamp: { type: 'date' }
-                }
-            }
-        }
-    });
 }
 
 async function logSearch(pokemonName) {
@@ -276,13 +248,13 @@ router.get('/pokemons', async (req, res) => {
  *       - in: query
  *         name: page
  *         schema:
- *           type: integer
+ *           type: string
  *         required: true
  *         description: Numéro de la page
  *       - in: query
  *         name: limit
  *         schema:
- *           type: integer
+ *           type: string
  *         required: true
  *         description: Nombre de Pokémon par page
  *     responses:
@@ -329,10 +301,11 @@ router.get('/pokemons', async (req, res) => {
  *                     type: string
  *                     example: Normal ou forme spéciale
  */
-router.get('/pokemons/paggination', async (req, res) => {
-    const pokemonName = req.params.name;
+router.get('/pokemons/pagination/:page/:size', async (req, res) => {
+    const page = parseInt(req.params.page) || 1;
+    const size = parseInt(req.params.size) || 10;
     try {
-        const results = await fetchAllPokemons();
+        const results = await fetchPokemons(page,size);
         res.json(results);
     } catch (error) {
         res.status(500).json({ error: error.message });
