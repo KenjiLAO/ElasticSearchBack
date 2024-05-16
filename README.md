@@ -8,7 +8,7 @@ Cette Api permet de faire des recherches ElasticSearch sur le cloud d'ElasticSea
 Lien du repository git : https://github.com/KenjiLAO/ElasticSearchBack
 
 ### Prérequis
-Avoir Node.js d'installé
+Avoir Node.js d'installé :
 https://nodejs.org/en
 
 Installer les modules swaggers :
@@ -17,19 +17,27 @@ npm install swagger-jsdoc swagger-ui-express
 Les dépendances s'installent localement automatiquement
 
 ### Lancement
-npm start pour lancer l'application
+npm start à partir de index.js pour lancer l'application
 
 ## Documentation
 
 Après avoir lancé l'application, vous avez accès à cette endpoint :
 http://localhost:3000/api-docs
 
-Ce swagger montre tous les endpoints utilisés dans l'api
+Ce swagger montre tous les endpoints utilisés dans le front
+
+## Dashboard
+![img.png](img.png)
+![img_1.png](img_1.png)
 
 ## Explication des différents données présentes dans le dashboard
-Le dashboard présente une analyse des données relatives aux datasets de pokemon présent dans ElasticSearch. Voici une vue d'ensemble des différents éléments présents :
 
-Répartition des Types de pokemons : Ce donut chart permet de visualiser la répartition des pokemons par type (Eau, Feu, ect..). De plus, il affiche les seconds types des pokémons qui sont associée à chaque premier type.
-Top 5 des pokemons avec la plus grosse attaque : Ce graphique montre les pokemons avec la plus statistique grosse attaque présent dans les jeux
-Nombre de Pokemon : Ce compteur indique le nombre total de pokemon présents dans le dataset.
-Top 10 des pokemons avec la meilleur moyenne de statistique : Ce graphique montre les pokemons avec les meilleurs moyenne de statistique des pokemons présent dans les jeux tout en affichant leur statistiques dans chaque domaine (comme l'attaque, la défense, les points de vie, ect....)
+Le tableau de bord présente une analyse des données des datasets de Pokémon présents dans ElasticSearch. Voici une vue d'ensemble des différents éléments :
+
+- Répartition des types de Pokémon : Ce graphique en anneau permet de visualiser la répartition des Pokémon par type (Eau, Feu, etc.). De plus, il affiche les seconds types des Pokémon associés à chaque premier type.
+
+- Top 5 des Pokémon avec la plus forte attaque : Ce graphique montre les Pokémon ayant les statistiques d'attaque les plus élevées dans les jeux.
+
+- Nombre de Pokémon : Ce compteur indique le nombre total de Pokémon présents dans le dataset.
+
+- Top 10 des Pokémon avec la meilleure moyenne de statistiques : Ce graphique montre les Pokémon ayant la meilleure moyenne de statistiques dans les jeux, tout en affichant leurs statistiques dans chaque domaine (attaque, défense, points de vie, etc.).
